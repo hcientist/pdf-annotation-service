@@ -29,16 +29,19 @@ const server = http.createServer((req, res) => {
 
   req
     .on('data', chunk => {
+      console.log('data')
       body.push(chunk);
     })
     .on('end', () => {
       body = Buffer.concat(body);
       console.log('Got buffer');
+      console.log(body)
 
       const inStream = new PDFRStreamForBuffer(body);
       const outStream = new hummus.PDFStreamForResponse(res);
 
       console.log('Working...');
+      console.log(inStream);
       work(annotations, inStream, outStream);
 
       console.log('Done');

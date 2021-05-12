@@ -1,9 +1,16 @@
 const hummus = require('hummus');
 
-const createAnnotation = (pdfWriter, annotation) => {
+const createAnnotation = (pdfWriter, annotation, pageObject) => {
   const { position, content, color } = annotation;
 
   const [x1, y1, x2, y2] = position;
+
+  var pageModifier = new hummus.PDFPageModifier(pdfWriter, 0);
+  var cxt = pageModifier.startContext().getContext();
+
+  // simple image placement
+  cxt.drawImage(10, 10, './quarter_note.png')
+  pageModifier.endContext().writePage();
 
   var objectsContext = pdfWriter.getObjectsContext();
   const annotationObj = objectsContext.startNewIndirectObject();
@@ -54,7 +61,9 @@ const modifyPage = (pdfWriter, pdfReader, copyingContext, pageIndex, annotations
     .toJSObject();
   const objectsContext = pdfWriter.getObjectsContext();
 
-  const annotationArray = annotations.map(annotation => createAnnotation(pdfWriter, annotation));
+  const annotationArray = annotations.map(annotation => createAnnotation(pdfWriter, annotation, copyingContext
+    .getSourceDocumentParser()
+    .parsePage(pageIndex)));
 
   objectsContext.startModifiedIndirectObject(pageId);
   const modifiedPageObject = pdfWriter.getObjectsContext().startDictionary();
